@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ================================================
+       🔤 FONTS
+  ================================================ -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #fff0f3;        /* 🎨 لون الخلفية */
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+
+    /* القلوب الطايرة */
+    .bg-hearts { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+    .bg-heart   { position:absolute; opacity:0.13; animation:floatUp linear infinite; }
+    @keyframes floatUp {
+      0%   { transform:translateY(110vh) rotate(0deg);   opacity:0.13; }
+      100% { transform:translateY(-10vh) rotate(360deg); opacity:0; }
+    }
+
+    /* ================================================
+       🃏 SCREENS
+    ================================================ */
+    .screen {
+      display: none;
+      position: relative; z-index:10;
+      background: white;
+      border-radius: 32px;
+      padding: 44px 52px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(255,100,130,0.2);
+      max-width: 420px; width: 90%;
+      border: 2px solid #ffe0e8;
+      animation: popIn 0.45s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    .screen.active { display:block; }
+    @keyframes popIn {
+      0%   { transform:scale(0.6); opacity:0; }
+      100% { transform:scale(1);   opacity:1; }
+    }
+
+    /* ================================================
+       🖼️ الصورة / GIF — موجودة في كل صفحة
+       عشان تغير صورة صفحة معينة:
+         1. شيل <div class="img-placeholder"> من الصفحة دي
+         2. حط بدله: <img class="top-img" src="رابط_الصورة" alt="">
+       عشان تحط GIF: نفس الكلام بالظبط
+    ================================================ */
+    .top-img {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 16px;
+      display: block;
+      border: 3px solid #ffb3c6;
+    }
+    .img-placeholder {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      background: #ffe0e8;
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.8rem;
+      border: 3px dashed #ffb3c6;
+      color: #e8365d;
+    }
+
+    /* ================================================
+       ✏️ TYPOGRAPHY
+    ================================================ */
+    .hello {
+      font-family: 'Pacifico', cursive;
+      font-size: 2.1rem;
+      color: #e8365d;             /* 🎨 غيّر اللون هنا */
+      margin-bottom: 6px;
+    }
+
+    /* السؤال — الإيموجي بقى جنبه مش فوقه */
+    .question {
+      font-size: 1.1rem;
+      color: #555;
+      font-weight: 700;
+      margin-bottom: 28px;
+      line-height: 1.8;
+    }
+    .question span { color: #e8365d; }
+
+    /* ================================================
+       🔘 BUTTONS
+    ================================================ */
+    .buttons { display:flex; gap:16px; justify-content:center; align-items:center; flex-wrap:wrap; }
+
+    .btn-yes {
+      background: linear-gradient(135deg,#ff4d7d,#e8365d);
+      color:white; border:none; padding:14px 38px; border-radius:50px;
+      font-family:'Nunito',sans-serif; font-size:1.05rem; font-weight:900;
+      cursor:pointer; box-shadow:0 6px 20px rgba(232,54,93,0.4);
+      transition:transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-yes:hover { transform:scale(1.08); box-shadow:0 10px 28px rgba(232,54,93,0.5); }
+
+    .btn-no {
+      background:#f5f5f5; color:#888; border:2px solid #e0e0e0;
+      padding:14px 38px; border-radius:50px;
+      font-family:'Nunito',sans-serif; font-size:1rem; font-weight:700;
+      cursor:pointer; transition:all 0.3s;
+    }
+    .btn-no:hover { background:#eee; }
+    .btn-no.shrinking { animation:shrinkPop 0.35s ease forwards; }
+    @keyframes shrinkPop {
+      0%  { transform:scale(1); }
+      50% { transform:scale(0.4); }
+      100%{ transform:scale(0.85); }
+    }
+
+    /* YES screen */
+    .big-emoji { font-size:4.5rem; animation:heartBeat 0.8s ease-in-out infinite; }
+    @keyframes heartBeat {
+      0%,100%{ transform:scale(1); }
+      50%    { transform:scale(1.2); }
+    }
+
+    /* Confetti */
+    .confetti-piece {
+      position:fixed; width:10px; height:10px; top:-10px; border-radius:2px;
+      animation:confettiFall linear forwards; z-index:999; pointer-events:none;
+    }
+    @keyframes confettiFall {
+      0%   { transform:translateY(0) rotate(0deg);       opacity:1; }
+      100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-hearts" id="bgHearts"></div>
+
+
+  <!-- ================================================
+       📄 SCREEN 1 — "Are you Single?"
+       🖼️ غيّر الصورة: شيل img-placeholder وحط:
+          <img class="top-img" src="رابط_صورتك" alt="">
+  ================================================ -->
+  <div class="screen active" id="s1">
+
+    <div class="img-placeholder">🖼️</div>   <!-- صورة الصفحة 1 -->
+
+    <div class="hello">Hello Nada! 💖</div>  <!-- 📝 غيّر الاسم -->
+
+    <!-- الإيموجي 👀 جنب السؤال -->
+    <p class="question">
+      Quick question...<br>
+      Are you <span>Single</span>? 👀
+    </p>
+
+    <div class="buttons">
+      <button class="btn-yes" onclick="handleYes()">Yes 😍</button>
+      <button class="btn-no" id="no1" onclick="clickNo('no1','s2')">No 💔</button>
+    </div>
+  </div>
+
+
+  <!-- ================================================
+       📄 SCREEN 2 — "Are you sure?"
+       🖼️ غيّر الصورة هنا
+  ================================================ -->
+  <div class="screen" id="s2">
+
+    <div class="img-placeholder">🖼️</div>   <!-- صورة الصفحة 2 -->
+
+    <div class="hello" style="font-size:1.7rem">Are you sure?</div>
+
+    <!-- الإيموجي 🤨 جنب السؤال -->
+    <p class="question" style="margin-top:8px">
+      Like... really sure? 🤨
+    </p>
+
+    <div class="buttons">
+      <button class="btn-yes" onclick="handleYes()">Okay yes 😅</button>
+      <button class="btn-no" id="no2" onclick="clickNo('no2','s3')">Yes I'm sure</button>
+    </div>
+  </div>
+
+
+  <!-- ================================================
+       📄 SCREEN 3 — "This is serious"
+       🖼️ غيّر الصورة هنا
+  ================================================ -->
+  <div class="screen" id="s3">
+
+    <div class="img-placeholder">🖼️</div>   <!-- صورة الصفحة 3 -->
+
+    <div class="hello" style="font-size:1.6rem">This is a serious question.</div>
+
+    <!-- الإيموجي 😐 جنب السؤال -->
+    <p class="question" style="margin-top:8px">
+      Think carefully, Nada 😐🙏
+    </p>
+
+    <div class="buttons">
+      <button class="btn-yes" onclick="handleYes()">Alright, yes! 💖</button>
+      <button class="btn-no" id="no3" onclick="handleBye()">Still no.</button>
+    </div>
+  </div>
+
+
+  <!-- ================================================
+       📄 SCREEN: YES 🎉
+       🖼️ غيّر الصورة هنا
+       ✏️ غيّر النص هنا
+  ================================================ -->
+  <div class="screen" id="yes">
+
+    <div class="img-placeholder">🖼️</div>   <!-- صورة شاشة YES -->
+
+    <div class="big-emoji">🥹</div>
+    <div class="hello" style="margin-top:12px">Best day ever!! 🎉</div>
+    <p class="question" style="margin-top:8px">
+      Okay Nada... now we need to talk 😏<br>
+      I have something important to tell you 💌
+    </p>
+  </div>
+
+
+  <!-- ================================================
+       📄 SCREEN: BYE 👋
+       🖼️ غيّر الصورة هنا
+       ✏️ غيّر النص هنا
+  ================================================ -->
+  <div class="screen" id="bye">
+
+    <div class="img-placeholder">🖼️</div>   <!-- صورة شاشة BYE -->
+
+    <div class="hello" style="margin-top:12px;font-size:1.7rem">Okay fine. 😶</div>
+    <p class="question" style="margin-top:8px">
+      Bye Nada. 👋<br>
+      <span style="color:#aaa;font-size:0.85rem">(I'm not crying. You're crying.)</span>
+    </p>
+  </div>
+
+
+  <!-- ================================================
+       ⚙️ JAVASCRIPT
+  ================================================ -->
+  <script>
+
+    // ================================================
+    // 🔑 TELEGRAM CONFIG
+    // غيّر التوكن والـ Chat ID لو احتجت
+    // ================================================
+    const TELEGRAM_TOKEN   = '8735013052:AAFsQ90t_NQJbPn7dPMTyM-4jt-B7Tm1JnM';
+    const TELEGRAM_CHAT_ID = '1168111742';
+
+    // ================================================
+    // 📨 sendTelegram(message)
+    // ================================================
+    function sendTelegram(message) {
+      fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message })
+      });
+    }
+
+    // ================================================
+    // 👁️ إشعار الزيارة — بيتبعت أول ما حد يفتح الصفحة
+    // ================================================
+    window.addEventListener('load', () => {
+      const time = new Date().toLocaleString('ar-EG', {
+        dateStyle: 'short', timeStyle: 'short', hour12: true
+      });
+      // 📨 غيّر نص الرسالة هنا
+      sendTelegram(`👀 حد فتح اللينك!\n🕐 الوقت: ${time}`);
+    });
+
+    // ================================================
+    // ✅ handleYes()
+    // ================================================
+    function handleYes() {
+      // 📨 غيّر نص الرسالة هنا
+      sendTelegram('🎉 Nada said YES!! 💖\nيلا كلمها دلوقتي! 😏');
+      goTo('yes');
+    }
+
+    // ================================================
+    // ❌ handleBye() — No الأخيرة
+    // ================================================
+    function handleBye() {
+      const btn = document.getElementById('no3');
+      btn.classList.add('shrinking');
+      btn.disabled = true;
+      setTimeout(() => {
+        // 📨 غيّر نص الرسالة هنا
+        sendTelegram('💔 Nada said no...\nمتزهقش، جرب تكلمها بطريقة تانية 😅');
+        goTo('bye');
+      }, 400);
+    }
+
+    // ================================================
+    // 🔀 goTo(screenId)
+    // ================================================
+    function goTo(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      if (screenId === 'yes') launchConfetti();
+    }
+
+    // ================================================
+    // ❌ clickNo(btnId, nextScreen) — No العادية
+    // ================================================
+    function clickNo(btnId, nextScreen) {
+      const btn = document.getElementById(btnId);
+      btn.classList.add('shrinking');
+      btn.disabled = true;
+      setTimeout(() => goTo(nextScreen), 400);
+    }
+
+    // ================================================
+    // 💖 القلوب الطايرة
+    // ================================================
+    const bgEl = document.getElementById('bgHearts');
+    ['💖','💗','✨','🌹','💕'].forEach(emoji => {
+      for (let j = 0; j < 4; j++) {
+        const h = document.createElement('div');
+        h.classList.add('bg-heart');
+        h.textContent = emoji;
+        h.style.left              = Math.random() * 100 + 'vw';
+        h.style.fontSize          = (1 + Math.random() * 1.5) + 'rem';
+        h.style.animationDuration = (7 + Math.random() * 10) + 's';
+        h.style.animationDelay    = (Math.random() * 12) + 's';
+        bgEl.appendChild(h);
+      }
+    });
+
+    // ================================================
+    // 🎊 launchConfetti()
+    // ================================================
+    function launchConfetti() {
+      const colors = ['#e8365d','#ff8fab','#ffd6e0','#ffb347','#a8ff78','#78bfff'];
+      for (let i = 0; i < 90; i++) {
+        setTimeout(() => {
+          const piece = document.createElement('div');
+          piece.classList.add('confetti-piece');
+          piece.style.left              = Math.random() * 100 + 'vw';
+          piece.style.background        = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+          piece.style.borderRadius      = Math.random() > 0.5 ? '50%' : '2px';
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 3500);
+        }, i * 25);
+      }
+    }
+
+  </script>
+</body>
+</html>
